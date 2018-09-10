@@ -1,7 +1,7 @@
 # sauce
 bunch of c++ classes to wrap around saucenao.com's API
 
-# depends
+# uses
 - [nlohmann/json](https://github.com/nlohmann/json)
 
 # todo
