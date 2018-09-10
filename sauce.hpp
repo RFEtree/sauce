@@ -1,8 +1,8 @@
 /* 
 sauce.hpp
 version 0.0.1
-https://github.com/eetree/
-Copyright (c) 2018 eetree <https://github.com/eetree>
+https://github.com/rfetree/
+Copyright (c) 2018 rfetree <https://github.com/rfetree>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
