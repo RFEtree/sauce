@@ -37,7 +37,7 @@ int main()
 
 remember to link libcurl
 
-    gcc foo.cpp -l curl -o foo.out
+    g++ foo.cpp -l curl -o foo.out
 
 # CURRENTLY SUPPORTED BOORUS
 - [Gelbooru](https://gelbooru.com/)
@@ -52,3 +52,4 @@ remember to link libcurl
 - ~~replace system() with libcurl and curlopt~~ **done**
 - ~~refactor prototype.cpp into main class~~ **done**
 - ~~add \*booru API~~ **done**
+- add Danbooru API support
