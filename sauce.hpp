@@ -1,7 +1,10 @@
 /* 
+-----------------------------------------
+copyright notice
+-----------------------------------------
 sauce.hpp
 version 0.0.1
-https://github.com/rfetree/
+https://github.com/rfetree/sauce
 Copyright (c) 2018 rfetree <https://github.com/rfetree>
 
 This program is free software: you can redistribute it and/or modify
@@ -44,7 +47,6 @@ SOFTWARE.
 --------------------------------------------------------
 cURL copyright notice
 --------------------------------------------------------
-
 COPYRIGHT AND PERMISSION NOTICE
 
 Copyright (c) 1996 - 2018, Daniel Stenberg, daniel@haxx.se, and many contributors, see the THANKS file.
@@ -57,9 +59,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 Except as contained in this notice, the name of a copyright holder shall not be used in advertising or otherwise to promote the sale, use or other dealings in this Software without prior written authorization of the copyright holder.
 
-*/
+--------------------------------------------------------
+pugixml copyright notice
+--------------------------------------------------------
+MIT License
 
+Copyright (c) 2006-2018 Arseny Kapoulkine
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+#include "pugixml.hpp"
+#include "pugixml.cpp"
 #include <iostream>
+#include <set>
 #include <fstream>
 #include <cstdio>
 #include <string>
@@ -67,9 +83,81 @@ Except as contained in this notice, the name of a copyright holder shall not be 
 #include "json.hpp"
 namespace sauce
 {
+  //-------------------------------------
+  //-------------------------------------
+  //-------------------------------------
+  class gelbooruMech
+  {
+  private:
+      std::string fn;
+      std::string target_url = "https://gelbooru.com/index.php?page=dapi&s=post&q=index&id=";
+  public:
+      std::string id_num;
+      bool file_exists = false;
+      gelbooruMech(std::string param_id_num)
+      {
+          id_num = param_id_num;
+          target_url+=id_num;
+          fn = id_num + ".xml";
+          std::ifstream ftest(fn.c_str());
+          file_exists = ftest.good();
+      }
+
+      void fetch(void)
+      {
+        if(file_exists==false)
+        {          
+          const char * my_fn = fn.c_str();
+          const char * my_url = target_url.c_str();
+          CURL * easyhandle;
+          CURLcode res;
+          easyhandle = curl_easy_init();
+          curl_easy_setopt(easyhandle,CURLOPT_VERBOSE,1L);
+          curl_easy_setopt(easyhandle,CURLOPT_URL, my_url);
+          FILE * fp = fopen(my_fn,"w");
+          curl_easy_setopt(easyhandle, CURLOPT_WRITEDATA, fp);
+          res = curl_easy_perform(easyhandle);
+          curl_easy_cleanup(easyhandle);
+          fclose(fp);
+          file_exists = true;
+        }
+        else
+        {
+          std::cout<<"file "+fn+" exists"<<std::endl;
+        }
+      }
+      std::string get_tags(void)
+      {
+          pugi::xml_document doc;
+          doc.load_file(fn.c_str());
+          auto my_attrib = doc.child("posts").child("post").attribute("tags");
+          std::string ret = my_attrib.value();
+          return ret;
+      }
+  };  
+  //-------------------------------------
+  //-------------------------------------
+  //-------------------------------------
     class sauceResult
     {
         public:
+          std::set<std::string> gelbooru_tag_set;
+          void gelbooru_tags(std::string x)
+          {
+            std::string xtag = "";
+            for(int i=0;i<x.length();i++)
+            {
+              if(x[i]==' ')
+              {
+                if(xtag!="")
+                {
+                  gelbooru_tag_set.insert(xtag);
+                  xtag = "";
+                }
+              }
+              xtag+=x[i];
+            }
+          }
             std::vector<std::string> sourcelinks;
             double similarity;
             void init(std::vector<std::string> ext_urls,std::string d)
@@ -78,7 +166,10 @@ namespace sauce
                 sourcelinks = ext_urls;
             }
     };
-    class sauceMachine
+    //-----------------------------------------
+    //-----------------------------------------
+    //-----------------------------------------
+    class sauceMech
     {
     private:
         std::string api_key;
@@ -109,12 +200,12 @@ namespace sauce
           }
         }
     public:
-        sauceMachine(std::string param_api_key)
+        sauceMech(std::string param_api_key)
         {
             api_key = param_api_key;
             my_target_url = my_target_url_format+api_key;
         }
-        void set_input_file_path(std::string param_file_path)
+        void set_image_path(std::string param_file_path)
         {
           file_path = param_file_path;
           file_name = extract_file_name(file_path);
@@ -124,7 +215,7 @@ namespace sauce
         {
           return output_file_name;
         }
-        void fetch_json(void)
+        int fetch_json(void)
         {
           std::string str_input_file_name = file_path;
           std::string str_target_url = "http://saucenao.com/search.php?output_type=2&api_key="+api_key;
@@ -132,6 +223,15 @@ namespace sauce
           const char * input_file_name = str_input_file_name.c_str();
           const char * target_url = str_target_url.c_str();
           const char * output_file_name = str_output_file_name.c_str();
+
+          //file existence test
+          std::ifstream ftest(str_output_file_name.c_str());
+          if(ftest.good())
+          {
+            std::cout<<"file "<<str_output_file_name<<" exists"<<std::endl;
+            return 0;
+          }
+          //-----------
           CURL *curl;
           CURLcode res;
          
@@ -171,6 +271,7 @@ namespace sauce
           }
           curl_global_cleanup();
           fclose(file);
+          return 1;
         }
         nlohmann::json get_json(void)
         {
@@ -197,6 +298,24 @@ namespace sauce
                 for(auto iter_lv2 = ext_urls.begin();iter_lv2!=ext_urls.end();++iter_lv2)
                 {
                     std::string xstr = *iter_lv2;
+                    std::string gb_check = "gelbooru.com";
+                    if(xstr.find(gb_check)!=std::string::npos)
+                    {
+                      int idpos = xstr.find("id=");
+                      idpos+=3;
+                      std::string gb_id = "";
+                      while(idpos<xstr.length())
+                      {
+                        if(xstr[idpos]=='&')
+                        {
+                          break;
+                        }
+                        gb_id+=xstr[idpos++];
+                      }
+                      gelbooruMech gm(gb_id);
+                      gm.fetch();
+                      sr.gelbooru_tags(gm.get_tags());
+                    }
                     v.push_back(xstr);
                 }
                 sr.init(v,similarity);
