@@ -46,7 +46,7 @@ remember to link libcurl
 # depends
 - [nlohmann/json](https://github.com/nlohmann/json)
 - [curl/libcurl](https://github.com/curl/curl)
-- [zeus/pugixml](https://github.com/zeux/pugixml)
+- [zeux/pugixml](https://github.com/zeux/pugixml)
 
 # todo
 - ~~replace system() with libcurl and curlopt~~ **done**
