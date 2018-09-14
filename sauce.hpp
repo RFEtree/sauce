@@ -76,10 +76,6 @@ namespace sauce
                 similarity = std::stod(d);
                 sourcelinks = ext_urls;
             }
-            int number_of_links(void)
-            {
-                return sourcelinks.size();
-            }
     };
     class sauceMachine
     {
@@ -97,21 +93,19 @@ namespace sauce
         std::string my_target_url_format = "https://saucenao.com/search.php?output_type=2&api_key=APIKEYHERE";
         std::string my_target_url = my_target_url_format;
     public:
-        void set_params(std::string new_key,std::string new_path)
+        void set_params(std::string param_api_key,std::string param_file_ath)
         {
-            api_key = new_key;
-            file_path = new_path;
+            api_key = param_api_key;
+            file_path = param_file_ath;
             my_target_url = my_target_url_format;
             std::string tmp = "APIKEYHERE";
             replace(my_target_url,tmp,api_key);
         }
-        
-        void fetch_new(void)
+        void fetch_json(void)
         {
-
           std::string str_input_file_name = file_path;
           std::string str_target_url = "http://saucenao.com/search.php?output_type=2&api_key="+api_key;
-          std::string str_output_file_name = "lmao.json";
+          std::string str_output_file_name = "saucenao.json";
           const char * input_file_name = str_input_file_name.c_str();
           const char * target_url = str_target_url.c_str();
           const char * output_file_name = str_output_file_name.c_str();
@@ -155,9 +149,17 @@ namespace sauce
           curl_global_cleanup();
           fclose(file);
         }
-        std::vector<sauceResult> consume(void)
+        nlohmann::json get_json(void)
         {
-            std::ifstream raw_file("lmao.json");
+          std::ifstream raw_file("saucenao.json");
+          nlohmann::json json_obj;
+          raw_file >> json_obj;
+          return json_obj;
+        }     
+
+        std::vector<sauceResult> get_sauce_res(void)
+        {
+            std::ifstream raw_file("saucenao.json");
             nlohmann::json json_obj;
             raw_file >> json_obj;
             auto x = json_obj["results"];
@@ -171,13 +173,9 @@ namespace sauce
                 std::vector<std::string> v;
                 for(auto iter_lv2 = ext_urls.begin();iter_lv2!=ext_urls.end();++iter_lv2)
                 {
-                    //std::cout<<*iter_lv2<<std::endl;
-                    std::string xstr = "";
-                    xstr = *iter_lv2;
+                    std::string xstr = *iter_lv2;
                     v.push_back(xstr);
                 }
-                //std::cout<<"Similarity: "<<similarity<<std::endl;
-                //std::cout<<"Array: "<<ext_urls<<std::endl;
                 sr.init(v,similarity);
                 rvec.push_back(sr);
             }
