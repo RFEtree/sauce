@@ -114,7 +114,7 @@ namespace sauce
             api_key = param_api_key;
             my_target_url = my_target_url_format+api_key;
         }
-        void set_file_path(std::string param_file_path)
+        void set_input_file_path(std::string param_file_path)
         {
           file_path = param_file_path;
           file_name = extract_file_name(file_path);
