@@ -1,5 +1,5 @@
 # sauce
-bunch of c++ classes to wrap around saucenao.com and \*booru APIs.
+C++ classes to wrap around saucenao.com and \*booru APIs.
 
 # example
 - program to identify source and print corresponding tags from gelbooru
