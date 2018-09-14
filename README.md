@@ -1,5 +1,7 @@
 # sauce
-bunch of c++ classes to wrap around saucenao.com's API. remember to link libcurl
+bunch of c++ classes to wrap around saucenao.com's API. \*booru API integration coming soon.
+
+remember to link libcurl
 
     gcc foo.cpp -l curl -o foo.out
 
@@ -10,4 +12,4 @@ bunch of c++ classes to wrap around saucenao.com's API. remember to link libcurl
 # todo
 - ~~replace system() with libcurl and curlopt~~ **done**
 - ~~refactor prototype.cpp into main class~~ **done**
-- rewrite sauceMachine into a more structured class
+- add \*booru API
