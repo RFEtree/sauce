@@ -80,25 +80,15 @@ namespace sauce
     class sauceMachine
     {
     private:
-
-        bool replace(std::string& str, std::string& from, std::string& to) {
-            size_t start_pos = str.find(from);
-            if(start_pos == std::string::npos)
-            return false;
-            str.replace(start_pos, from.length(), to);
-            return true;
-        }
         std::string api_key;
         std::string file_path;
-        std::string my_target_url_format = "https://saucenao.com/search.php?output_type=2&api_key=APIKEYHERE";
+        std::string my_target_url_format = "https://saucenao.com/search.php?output_type=2&api_key=";
         std::string my_target_url = my_target_url_format;
     public:
         sauceMachine(std::string param_api_key)
         {
             api_key = param_api_key;
-            my_target_url = my_target_url_format;
-            std::string tmp = "APIKEYHERE";
-            replace(my_target_url,tmp,api_key);
+            my_target_url = my_target_url_format+api_key;
         }
         void set_file_path(std::string param_file_path)
         {
