@@ -1,6 +1,7 @@
 # sauce
 bunch of c++ classes to wrap around saucenao.com's API. remember to link libcurl
-```sh gcc foo.cpp -l curl -o foo.out```
+
+    gcc foo.cpp -l curl -o foo.out
 
 # depends
 - [nlohmann/json](https://github.com/nlohmann/json)
