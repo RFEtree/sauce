@@ -13,8 +13,8 @@ int main()
     sauce::sauceMech sm("0000000000000000000000000000000000000000");
     //set path
     sm.set_image_path("saber.png");
-    //downloads info into a json file, GET does not occur if file already exists
-    // results can also be obtained in a json object with the get_json() function
+    //downloads info into a json file, network transfer does not occur if file already exists
+    //saucenao results can also be obtained in a json object (nlohmann::json) with the sauceMech::get_json() function
     sm.fetch_json();
     //process json and get a std::vector<sauce::sauceResult> with tag information, links and similarity percentage
     auto x = sm.get_sauce_res();
