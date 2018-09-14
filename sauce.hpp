@@ -58,6 +58,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 Except as contained in this notice, the name of a copyright holder shall not be used in advertising or otherwise to promote the sale, use or other dealings in this Software without prior written authorization of the copyright holder.
 
 */
+
 #include <iostream>
 #include <fstream>
 #include <cstdio>
@@ -82,8 +83,31 @@ namespace sauce
     private:
         std::string api_key;
         std::string file_path;
+        std::string file_name;
+        std::string output_file_name = "saucenao.json";
         std::string my_target_url_format = "https://saucenao.com/search.php?output_type=2&api_key=";
         std::string my_target_url = my_target_url_format;
+
+        std::string extract_file_name(std::string x)
+        {
+          std::string tmp = "";
+          for(int i=x.length()-1;i>=0;i--)
+          {
+            #ifdef _WIN32
+            if(x[i]=='\\')
+            {
+              return tmp;
+            }
+
+            #else
+            if(x[i]=='/')
+            {
+              return tmp;
+            }            
+            tmp = x[i] + tmp;
+            #endif
+          }
+        }
     public:
         sauceMachine(std::string param_api_key)
         {
@@ -93,12 +117,18 @@ namespace sauce
         void set_file_path(std::string param_file_path)
         {
           file_path = param_file_path;
+          file_name = extract_file_name(file_path);
+          output_file_name = "saucenao-"+file_name+".json";
+        }
+        std::string get_output_file_name(void)
+        {
+          return output_file_name;
         }
         void fetch_json(void)
         {
           std::string str_input_file_name = file_path;
           std::string str_target_url = "http://saucenao.com/search.php?output_type=2&api_key="+api_key;
-          std::string str_output_file_name = "saucenao.json";
+          std::string str_output_file_name = output_file_name;
           const char * input_file_name = str_input_file_name.c_str();
           const char * target_url = str_target_url.c_str();
           const char * output_file_name = str_output_file_name.c_str();
@@ -144,7 +174,7 @@ namespace sauce
         }
         nlohmann::json get_json(void)
         {
-          std::ifstream raw_file("saucenao.json");
+          std::ifstream raw_file(output_file_name.c_str());
           nlohmann::json json_obj;
           raw_file >> json_obj;
           return json_obj;
@@ -152,7 +182,7 @@ namespace sauce
 
         std::vector<sauceResult> get_sauce_res(void)
         {
-            std::ifstream raw_file("saucenao.json");
+            std::ifstream raw_file(output_file_name.c_str());
             nlohmann::json json_obj;
             raw_file >> json_obj;
             auto x = json_obj["results"];
