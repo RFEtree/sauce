@@ -86,6 +86,58 @@ namespace sauce
   //-------------------------------------
   //-------------------------------------
   //-------------------------------------
+  class danbooruMech
+  {
+  private:
+      std::string fn;
+      std::string target_url = "https://danbooru.donmai.us/posts/";
+  public:
+      std::string id_num;
+      bool file_exists = false;
+      danbooruMech(std::string param_id_num)
+      {
+          id_num = param_id_num;
+          target_url+=id_num+".json";
+          fn = id_num + "-danbooru.json";
+          std::ifstream ftest(fn.c_str());
+          file_exists = ftest.good();
+      }
+
+      void fetch(void)
+      {
+        if(file_exists==false)
+        {          
+          const char * my_fn = fn.c_str();
+          const char * my_url = target_url.c_str();
+          CURL * easyhandle;
+          CURLcode res;
+          easyhandle = curl_easy_init();
+          curl_easy_setopt(easyhandle,CURLOPT_VERBOSE,1L);
+          curl_easy_setopt(easyhandle,CURLOPT_URL, my_url);
+          FILE * fp = fopen(my_fn,"w");
+          curl_easy_setopt(easyhandle, CURLOPT_WRITEDATA, fp);
+          res = curl_easy_perform(easyhandle);
+          curl_easy_cleanup(easyhandle);
+          fclose(fp);
+          file_exists = true;
+        }
+        else
+        {
+          std::cout<<"file "+fn+" exists"<<std::endl;
+        }
+      }
+      std::string get_tags(void)
+      {
+        std::ifstream raw_file(fn.c_str());
+        nlohmann::json json_obj;
+        raw_file>>json_obj;
+        std::string ret = json_obj["tag_string"];
+        return ret;
+      }
+  };  
+  //-------------------------------------
+  //-------------------------------------
+  //-------------------------------------
   class gelbooruMech
   {
   private:
@@ -98,7 +150,7 @@ namespace sauce
       {
           id_num = param_id_num;
           target_url+=id_num;
-          fn = id_num + ".xml";
+          fn = id_num + "-gelbooru.xml";
           std::ifstream ftest(fn.c_str());
           file_exists = ftest.good();
       }
@@ -142,6 +194,9 @@ namespace sauce
     {
         public:
           std::set<std::string> gelbooru_tag_set;
+          std::set<std::string> danbooru_tag_set;
+          std::string gelbooru_id = "";
+          std::string danbooru_id = "";
           void gelbooru_tags(std::string x)
           {
             std::string xtag = "";
@@ -158,6 +213,22 @@ namespace sauce
               xtag+=x[i];
             }
           }
+          void danbooru_tags(std::string x)
+          {
+            std::string xtag = "";
+            for(int i=0;i<x.length();i++)
+            {
+              if(x[i]==' ')
+              {
+                if(xtag!="")
+                {
+                  danbooru_tag_set.insert(xtag);
+                  xtag = "";
+                }
+              }
+              xtag+=x[i];
+            }
+          }          
             std::vector<std::string> sourcelinks;
             double similarity;
             void init(std::vector<std::string> ext_urls,std::string d)
@@ -298,6 +369,7 @@ namespace sauce
                 for(auto iter_lv2 = ext_urls.begin();iter_lv2!=ext_urls.end();++iter_lv2)
                 {
                     std::string xstr = *iter_lv2;
+                    //---------------------------------------
                     std::string gb_check = "gelbooru.com";
                     if(xstr.find(gb_check)!=std::string::npos)
                     {
@@ -315,7 +387,27 @@ namespace sauce
                       gelbooruMech gm(gb_id);
                       gm.fetch();
                       sr.gelbooru_tags(gm.get_tags());
+                      sr.gelbooru_id = gb_id;
                     }
+                    
+                    //---------------------------------------
+                    std::string db_check = "danbooru.donmai.us";
+                    if(xstr.find(db_check)!=std::string::npos)
+                    {
+                      int idpos = xstr.find("/show/");
+                      idpos+=6;
+                      std::string db_id = "";
+                      while(idpos<xstr.length())
+                      {
+                        db_id+=xstr[idpos++];
+                      }
+                      danbooruMech dm(db_id);
+                      dm.fetch();
+                      sr.danbooru_tags(dm.get_tags());
+                      sr.danbooru_id = db_id;
+                    }
+                    
+                    //---------------------------------------
                     v.push_back(xstr);
                 }
                 sr.init(v,similarity);
