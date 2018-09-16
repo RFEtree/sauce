@@ -81,7 +81,6 @@ int main()
         sm.set_image_path(fn);
         sm.fetch_json();
         auto x = sm.get_sauce_res();
-        int res = 0;
         for(auto it = x.begin();it!=x.end();++it)
         {
             auto y = *it;
@@ -94,16 +93,16 @@ int main()
                 break;
             }
         }
-        res?(std::cout<<"done"):(std::cout<<"failed");
         dp = readdir(dirp);
     }   
     closedir(dirp);
-
+    int res;
     for(auto it = mymap.begin();it != mymap.end(); ++it)
     {
         auto fn = it->first;
         auto nf = it->second;
-        std::rename(fn.c_str(),nf.c_str());
+        res = std::rename(fn.c_str(),nf.c_str());
+        res?(std::cout<<fn<<" successfully renamed to "<<nf<<std::endl):(std::cout<<fn<<" could not be renamed"<<std::endl);
     }
     return 0;
 }
