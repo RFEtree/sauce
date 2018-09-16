@@ -425,7 +425,7 @@ namespace sauce
         }
         int fetch_json(void)
         {
-          if(my_target_url==my_target_url_format)
+          if(my_target_url==my_target_url_format || file_path.length()==0)
           {
             return 0;
           }
