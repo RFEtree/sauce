@@ -126,4 +126,4 @@ remember to link libcurl
 - ~~refactor prototype.cpp into main class~~ **done**
 - ~~add \*booru API~~ **done**
 - ~~add Danbooru API support~~ **done**
-- implement general purpose tag map
+- ~~implement general purpose tag map~~ partially done, used nlohmann::json instead of std::map
