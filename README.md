@@ -1,5 +1,5 @@
 # sauce
-C++ classes to wrap around saucenao.com and \*booru APIs.
+C++ classes to wrap around saucenao.com and \*booru APIs. [Manual](https://github.com/RFEtree/sauce/wiki/manual) (incomplete)
 
 # example
 - program to identify source and print corresponding tags from gelbooru
@@ -126,4 +126,4 @@ remember to link libcurl
 - ~~refactor prototype.cpp into main class~~ **done**
 - ~~add \*booru API~~ **done**
 - ~~add Danbooru API support~~ **done**
-- ~~implement general purpose tag map~~ partially done, used nlohmann::json instead of std::map
+- ~~implement general purpose tag map~~ done, used nlohmann::json instead of std::map
