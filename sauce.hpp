@@ -77,6 +77,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <iostream>
 #include <set>
 #include <fstream>
+#include <sstream>
 #include <cstdio>
 #include <string>
 #include <curl/curl.h>
@@ -285,6 +286,119 @@ namespace sauce
         std::string get_output_file_name(void)
         {
           return output_file_name;
+        }
+        int set_testmode(int x)
+        {
+          if(x==1 && my_target_url!=my_target_url_format)
+          {
+            my_target_url+="&testmode=1";
+            return 1;
+          }
+          return 0;
+        }
+        int get_testmode(void)
+        {
+          size_t x = my_target_url.find("&testmode=1");
+          if(x!=std::string::npos)
+          {
+            return 1;
+          }
+          return 0;
+        }
+        int set_dbmask(int x)
+        {
+          if(my_target_url!=my_target_url_format)
+          {
+            my_target_url += "&dbmask="+x;
+            return 1;
+          } 
+          return 0;
+        }
+        int get_dbmask(void)
+        {
+          std::string search_term = "&dbmask=";
+          size_t x = my_target_url.find(search_term);
+          if(my_target_url!=my_target_url_format && x!=std::string::npos)
+          {
+            int y = x+search_term.length();
+            int ret;
+            std::stringstream ss(my_target_url.substr(y));
+            ss>>ret;
+            return ret;
+          } 
+          return -1;
+        }
+        int set_dbmaski(int x)
+        {
+          if(my_target_url!=my_target_url_format)
+          {
+            my_target_url += "&dbmaski="+x;
+            return 1;
+          } 
+          return 0;
+        }
+        int get_dbmaski(void)
+        {
+          std::string search_term = "&dbmaski=";
+          size_t x = my_target_url.find(search_term);
+          if(my_target_url!=my_target_url_format && x!=std::string::npos)
+          {
+            int y = x+search_term.length();
+            int ret;
+            std::stringstream ss(my_target_url.substr(y));
+            ss>>ret;
+            return ret;
+          } 
+          return -1;
+        }
+
+        int set_db(int x)
+        {
+          if(my_target_url!=my_target_url_format)
+          {
+            my_target_url+="&db="+x;
+            return 1;
+          }
+          return 0;
+        }
+
+        int get_db(void)
+        {
+          std::string search_term = "&db=";
+          size_t x = my_target_url.find(search_term);
+          if(my_target_url!=my_target_url_format && x!=std::string::npos)
+          {
+            int y = x+search_term.length();
+            int ret;
+            std::stringstream ss(my_target_url.substr(y));
+            ss>>ret;
+            return ret;
+          } 
+          return -1;
+        }
+        int set_numres(int x)
+        {
+          if(my_target_url!=my_target_url_format)
+          {
+            my_target_url+="&numres="+x;
+            return 1;
+          }
+          return 0;
+        }
+
+        int get_numres(void)
+        {
+          std::string search_term = "&numres=";
+          size_t x = my_target_url.find(search_term);
+          if(my_target_url!=my_target_url_format && x!=std::string::npos)
+          {
+            int y = x+search_term.length();
+            int ret;
+            std::stringstream ss(my_target_url.substr(y));
+            ss>>ret;
+            return ret;
+          } 
+          return -1;
         }
         int fetch_json(void)
         {
