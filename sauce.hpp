@@ -135,6 +135,13 @@ namespace sauce
         std::string ret = json_obj["tag_string"];
         return ret;
       }
+      nlohmann::json get_json(void)
+      {
+        std::ifstream raw_file(fn.c_str());
+        nlohmann::json json_obj;
+        raw_file>>json_obj;
+        return json_obj;
+      }
   };  
   //-------------------------------------
   //-------------------------------------
@@ -187,6 +194,20 @@ namespace sauce
           std::string ret = my_attrib.value();
           return ret;
       }
+      nlohmann::json get_json(void)
+      {
+        pugi::xml_document doc;
+        doc.load_file("test.xml");
+        auto my_attrib = doc.child("posts").child("post").first_attribute();
+
+        nlohmann::json jj;
+        while(my_attrib)
+        {
+          jj.emplace(my_attrib.name(),my_attrib.value());
+          my_attrib = my_attrib.next_attribute();
+        }
+        return jj;
+      }      
   };  
   //-------------------------------------
   //-------------------------------------
@@ -196,6 +217,8 @@ namespace sauce
         public:
           std::set<std::string> gelbooru_tag_set;
           std::set<std::string> danbooru_tag_set;
+          nlohmann::json gelbooru_json;
+          nlohmann::json danbooru_json;
           std::string gelbooru_id = "";
           std::string danbooru_id = "";
           void gelbooru_tags(std::string x)
@@ -402,6 +425,10 @@ namespace sauce
         }
         int fetch_json(void)
         {
+          if(my_target_url==my_target_url_format)
+          {
+            return 0;
+          }
           std::string str_input_file_name = file_path;
           std::string str_target_url = "http://saucenao.com/search.php?output_type=2&api_key="+api_key;
           std::string str_output_file_name = output_file_name;
@@ -502,6 +529,7 @@ namespace sauce
                       gm.fetch();
                       sr.gelbooru_tags(gm.get_tags());
                       sr.gelbooru_id = gb_id;
+                      sr.gelbooru_json = gm.get_json();
                     }
                     
                     //---------------------------------------
@@ -519,8 +547,8 @@ namespace sauce
                       dm.fetch();
                       sr.danbooru_tags(dm.get_tags());
                       sr.danbooru_id = db_id;
+                      sr.danbooru_json = dm.get_json();
                     }
-                    
                     //---------------------------------------
                     v.push_back(xstr);
                 }
