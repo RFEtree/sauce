@@ -49,6 +49,66 @@ int main()
 }
 ```
 
+- program to identify the source of all files in a directory and rename them to their gelbooru IDs, if available
+
+```c++
+
+#include "sauce.hpp"
+#include <cstdio>
+#include <algorithm>
+#include <map>
+#include <string>
+#include <iostream>
+#include <dirent.h>
+
+int main()
+{
+	std::map<std::string,std::string> mymap;
+	auto dirp = opendir(".");
+	auto dp = readdir(dirp);
+	while(dp!=NULL)
+	{
+		std::cout<<dp->d_name<<std::endl;
+		std::string fn = dp->d_name;
+		if(fn.find(".png")==std::string::npos && fn.find(".jpg")==std::string::npos)
+		{
+			dp = readdir(dirp);
+			continue;
+		}
+		std::cout<<fn<<std::endl;
+		dp = readdir(dirp);
+		sauce::sauceMech sm("0000000000000000000000000000000000000000");
+		sm.set_image_path(fn);
+		sm.fetch_json();
+		auto x = sm.get_sauce_res();
+		int res = 0;
+	    for(auto it = x.begin();it!=x.end();++it)
+	    {
+	        auto y = *it;
+	        int n = y.gelbooru_tag_set.size();
+	        auto zz = y.gelbooru_tag_set;
+	        if(n)
+	        {
+	            std::string nf = y.gelbooru_id +"-gelbooru"+ fn.substr(fn.rfind("."));
+	            mymap[fn] = nf;
+	            break;
+	        }
+	    }
+	    res?(std::cout<<"done"):(std::cout<<"failed");
+		dp = readdir(dirp);
+	}	
+	closedir(dirp);
+
+	for(auto it = mymap.begin();it != mymap.end(); ++it)
+	{
+		auto fn = it->first;
+		auto nf = it->second;
+		std::rename(fn.c_str(),nf.c_str());
+	}
+    return 0;
+}
+```
+
 remember to link libcurl
 
     g++ foo.cpp -l curl -o foo.out
