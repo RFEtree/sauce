@@ -78,6 +78,7 @@ int main()
         std::cout<<fn<<std::endl;
         dp = readdir(dirp);
         sauce::sauceMech sm("09c746f61cc350746e5386b8d70166a148bed678");
+        sauce::sauceMech sm("0000000000000000000000000000000000000000");
         sm.set_image_path(fn);
         sm.fetch_json();
         auto x = sm.get_sauce_res();
